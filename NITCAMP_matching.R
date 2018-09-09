@@ -11,8 +11,8 @@ e.names <- c("e2", "e1", "e3", "e5", "e6", "e4", "e7") # mentees
 # (i) decreasing order of mentees' year in college (so as to give more importance to 4th and 3rd year students while matching)
 # (ii) increasing order of number of mentors who have preferred the mentee (the inverse may result in mentees preferred by less number of mentors getting eliminated/not getting mentors) 
 m.names <- c("m4", "m3", "m1", "m2") # mentors
-# e.names should be in: 
-# (ii) increasing order of number of mentees who have preferred the mentor (the inverse may result in mentors preferred by less number of mentees getting eliminated/not getting mentees) 
+# m.names should be in: 
+# (i) increasing order of number of mentees who have preferred the mentor (the inverse may result in mentors preferred by less number of mentees getting eliminated/not getting mentees) 
 pref.layers <- c("e", "m") # preferences
 n.e <- length(e.names)
 n.m <- length(m.names)
@@ -48,11 +48,11 @@ while (length(E) > 0 & length(M) > 0) { # limit search to mentees and mentors wh
       # lock a mentee-mentor pair if neither can find a better match (from the unlocked mentors and mentees)
       if (x[e, m, 1] == min(x[e, , 1]) & x[e, m, 2] == min(x[, m, 2])) {
         match[[m]][[length(match[[m]]) + 1]] <- e.names[e] # add mentee "e" to mentor "m" list 
-        x[e, , ] <- n.n # assign large score, for "locking" the mentee 
+        x[e, , ] <- n.n # assign large score, for locking the mentee 
         E <- E[-(which(E==e))] # remove locked mentee from the list of unlocked mentees
         print(paste("mentee", e, "is matched,", length(E), "more mentees remaining", sep = " "))
         if (length(match[[m]]) == m.cap[m]) { # check if mentor has reached capacity limit
-          x[, m, ] <- n.n # assign large score, for "locking" the mentor
+          x[, m, ] <- n.n # assign large score, for locking the mentor
           M <- M[-(which(M==m))] # remove locked mentor from the list of unlocked mentors
           print(paste("mentor", m, "has reached full capacity."))
         }
