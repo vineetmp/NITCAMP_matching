@@ -17,9 +17,11 @@ Logic:
 
 - Define mentor capacity - that is, number of mentees each mentor can guide
 
-- Initialize list of "unlocked" mentees, and list of "unlocked" mentors
+- Initialize list of "unlocked" mentees (E), and list of "unlocked" mentors (M).
 
 - Define a "large" number (larger than any mentee/mentor preference value) for scoring purposes.
+
+- Start search. (Outer loop: For mentee e in E; inner loop: For mentor m in M). Limit search to mentees and mentors whose matching is not complete. Continue search until mentees' capacities (by default = 1) and mentors' capacities (variable from one mentor to another) are reached.
 
 - Limit search to mentees and mentors whose matching is not complete
 
