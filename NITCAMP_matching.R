@@ -17,8 +17,8 @@ pref.layers <- c("e", "m") # preferences
 n.e <- length(e.names)
 n.m <- length(m.names)
 # preference values
-x.values <- c(2, 3, 10, 3, 10, 10, 2, 1, 10, 3, 10, 2, 3, 1, 10, 1, 2, 2, 3, 1, 3, 3, 2, 1, 1, 1, 2, 10, 
-              10, 2, 10, 10, 10, 10, 1, 2, 10, 4, 10, 10, 1, 3, 10, 1, 2, 6, 4, 3, 5, 10, 10, 10, 2, 1, 3, 10)
+x.values <- c(2, 3, n.n, 3, n.n, n.n, 2, 1, n.n, 3, n.n, 2, 3, 1, n.n, 1, 2, 2, 3, 1, 3, 3, 2, 1, 1, 1, 2, n.n, 
+              n.n, 2, n.n, n.n, n.n, n.n, 1, 2, n.n, 4, n.n, n.n, 1, 3, n.n, 1, 2, 6, 4, 3, 5, n.n, n.n, n.n, 2, 1, 3, n.n)
 x <- array(x.values, c(7, 4, 2))
 x
 dimnames(x) <- list(e.names, m.names, pref.layers)
@@ -28,12 +28,11 @@ m.cap <- c(2, 1, 3, 1) # mentor capacity - that is, number of students each ment
 ## Step 1: Defining variables
 E <- 1:n.e # list of "unlocked" mentees
 M <- 1:n.m # list of "unlocked" mentors
-n.n <- max(n.e, n.m) + 1 # "large" number (larger than any mentee/mentor preference value) for scoring purposes
 match <- list() # create empty list to store matched values
-names(match) <- m.names
 for (m in M) { # add one empty list for each mentor
   match[[m]] <- list()
 }
+names(match) <- m.names
 counter = 0
 
 ## Step 2: Matching  
