@@ -19,7 +19,7 @@ Logic:
 
 - Initialize list of "unlocked" mentees, and list of "unlocked" mentors
 
-- Define a large" number (larger than any mentee/mentor preference value) for scoring purposes.
+- Define a "large" number (larger than any mentee/mentor preference value) for scoring purposes.
 
 - Limit search to mentees and mentors whose matching is not complete
 
