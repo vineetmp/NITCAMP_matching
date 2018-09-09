@@ -9,9 +9,11 @@ Logic:
 
 - refer to "sample_pref.xlsx" for visualizing the sample dataset
 
-- Sort mentee names in: (i) decreasing order of mentees' year in college (so as to give more importance to 4th and 3rd year students while matching) and (ii) increasing order of number of mentors who have preferred the mentee (the inverse may result in mentees preferred by less number of mentors getting eliminated/not getting mentors).
+- Sort mentee names in: (i) decreasing order of mentees' year in college (so as to give more importance to 4th and 3rd year students while matching) and (ii) increasing order of number of mentors who have preferred the mentee (the inverse may result in mentees preferred by less number of mentors getting eliminated/not getting mentors). 
 
 - Sort mentor names in: (i) increasing order of number of mentees who have preferred the mentor (the inverse may result in mentors preferred by less number of mentees getting eliminated/not getting mentees).
+
+- In the sample dataset, it is assumed that the mentees and mentors are already sorted. 
 
 - Define mentor capacity - that is, number of mentees each mentor can guide
 
