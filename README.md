@@ -30,6 +30,12 @@ Logic:
 - If the mentor has reached capacity limit, (i) assign large score, for locking the mentor, and (ii) remove locked mentor from the list of unlocked mentors.
 
 
+###################################################################
+Update on Sep 25, 2018
+Added updated file NITCAMP_matching_v2.R
+Not providing the Excel input files as these contain personal information of mentors and mentees. Please contact me  at vineetma@buffalo.edu for access to input data.
+
+
 
 
 
