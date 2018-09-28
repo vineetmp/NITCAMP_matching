@@ -1,13 +1,13 @@
 # NITCAMP mentor-mentee matching process - code
 # Author: Vineet Payyapalli
 # Created: Sep 8, 2018
-# Last updated: Sep 24, 2018
+# Last updated: Sep 28, 2018
 rm(list = ls())
 library(readxl)
 
 # read mentee responses
-mentees <- read_excel("NITCAMP 2018-2019 Mentee Sign Up form (Responses).xlsx")
-mentees <- mentees[, c(3, 7:9)] # select only required columns
+mentees <- read_excel("NITCAMP 2018 mentee pref.xlsx")
+mentees <- mentees[, c(2, 5:7)] # select only required columns
 colnames(mentees) <- c("name", "pref1", "pref2", "pref3")
 # cleaning mentor names
 mentees[mentees == "None of the above"] <- "Mentor #0: None"
@@ -20,7 +20,7 @@ for (i in 1:nrow(mentees)) {
 mentees <- mentees[!duplicated(mentees$name), ]
 
 # read mentor responses
-mentors <- read_excel("Mentor Preference Survey 2018 - edited.xlsx")
+mentors <- read_excel("NITCAMP 2018 mentor pref.xlsx")
 mentors <- mentors[, c(2,5:ncol(mentors))] # select only required columns
 mentors[is.na(mentors)] <- "None"
 names(mentors)[1:2] <- c("name", "capacity")
@@ -34,7 +34,7 @@ m.names <- mentors$name # mentors' names
 m.cap <- mentors$capacity # mentor capacity - that is, number of students each mentor can guide
 
 # low score, to be assigned to mentees/mentors not selected. Also, sorting (later) is done in the decreasing order, so zeros get least priority.
-no.score <- 0 
+no.score <- 1000 
 x <- array(no.score, c(n.e+2, n.m+1, 2)) # initialize score array
 # preference layers (two layers in a 3-D array) - e for mentee prefs, m for mentor prefs
 pref.layers <- c("e", "m") 
@@ -68,6 +68,10 @@ for (i in 1:nrow(mentors)) {
 x[, , 1] <- e.temp
 x[, , 2] <- m.temp
 
+# to help in sorting scores
+x[n.e+2, , ] <- 0
+x[, n.m+1, ] <- 0
+
 x[n.e+1, , ] <- c(m.cap, no.score) # adding one row with mentor caps
 # calculate mean score of mentors, based on mentees' preferences
 for (m in 1:n.m) {
@@ -84,7 +88,7 @@ x[(n.e+1):(n.e+2), , 2] <- x[(n.e+1):(n.e+2), , 1]
 # making sure the mentee score column is identical in both layers
 x[, n.m+1, 1] <- x[, n.m+1, 2]
 
-x[is.na(x)] <- no.score
+x[is.na(x)] <- 0
 
 # sorting rows in the decreasing order of mentee scores (column)
 for (i in 1:2) {
@@ -109,6 +113,12 @@ x.copy <- x # backup
 
 m.cap <- x[n.e+1, 1:n.m, 1] # mentor capacity - that is, number of students each mentor can guide
 
+x.e <- x[, , 1]
+x.m <- x[, , 2]
+
+# write.csv(x.e, "x_e.csv")
+# write.csv(x.m, "x_m.csv")
+
 # remove score and capacity columns
 x <- x[1:n.e, 1:n.m, ]
 
@@ -124,19 +134,27 @@ for (m in M) { # add one empty list for each mentor
 names(match) <- m.names
 counter = 0
 
-## Step 2: Matching  
-while (length(E) > 0 & length(M) > 0 & counter <= 100) { # limit search to mentees and mentors whose matching is not complete
+
+## Matching  
+tol <- 1 # this is the tolerance level. Reasonable values are 0, 1, 2. (use "==" when tol=0, and "<=" when tol = 1 or 2) )
+# the tolerance level indicates a compromise level while searching for the match
+# tolerance level 0 will yield (strict) less but higher quality matching
+# tolerance level 2 will yield (compromised) more but lower quality matching
+while (length(E) > 0 & length(M) > 0 & counter <= 200) { # limit search to mentees and mentors whose matching is not complete
   flag = F
   counter = counter + 1
   print(paste0("search # ", counter))
-  for (e in E) { 
+  for (m in M) { 
     # print (paste0("checking mentee ", e))
-    for (m in M) {
+    for (e in E) {
       # print (paste0("checking mentor ", m))
       # lock a mentee-mentor pair if neither can find a better match (from the unlocked mentors and mentees)
-      if (x[e, m, 1] == max(x[e, , 1]) & x[e, m, 2] == max(x[, m, 2])) {
-        match[[m]][[length(match[[m]]) + 1]] <- e.names[e] # add mentee "e" to mentor "m" list 
-        x[e, , ] <- no.score # assign smallest score, for locking the mentee 
+      if (x[e, m, 1] <= (min(x[e, , 1])+tol) & x[e, m, 1] != no.score & 
+          x[e, m, 2] <= (min(x[, m, 2])+tol) & x[e, m, 2] != no.score) {
+        match[[m]][[length(match[[m]]) + 1]] <- paste0(e.names[e], 
+                                                       " (e_pref = ", x[e, m, 1], 
+                                                       ", m_pref = ", x[e, m, 2], ")") # add mentee "e" to mentor "m" list 
+        x[e, , ] <- no.score # assign highest score, for locking the mentee 
         E <- E[-(which(E==e))] # remove locked mentee from the list of unlocked mentees
         print(paste("mentee", e, "(", e.names[e], ")", "is matched,", length(E), "more mentees remaining", sep = " "))
         if (length(match[[m]]) == m.cap[m]) { # check if mentor has reached capacity limit
@@ -153,5 +171,17 @@ while (length(E) > 0 & length(M) > 0 & counter <= 100) { # limit search to mente
   }
 }
 
-match.df <- as.data.frame(match)
-my_mat <- do.call(rbind, match)
+# convert result to a dataframe and save as .CSV file
+match.array <- array("", list(n.m, max(m.cap)+2))
+dimnames(match.array) <- list(m.names, c("mentor", "capactiy", paste0("mentee_", seq(1, max(m.cap), by = 1))))
+for (i in 1:n.m) {
+  if (length(match[[i]]) != 0) {
+    match.array[i, 3:(length(match[[i]])+2)] <- unlist(match[[i]])
+  }
+}
+match.df <- as.data.frame(match.array, stringsAsFactors = F)
+match.df$mentor <- rownames(match.df)
+rownames(match.df) <- 1:nrow(match.df)
+match.df$capactiy <- m.cap
+write.csv(match.df, "NITCAMP_matching_v1.csv")
+
